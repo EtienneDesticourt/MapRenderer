@@ -18,3 +18,18 @@ def parse_path(path_data):
     point_strings = re.findall(POINT_TUPLE_PATTERN, points_data)
     points = [(float(x), float(y)) for y, x in point_strings]
     return points
+
+
+def get_extreme_pos(map_polygons, extreme_getter):
+    extreme_x = extreme_getter([x for poly in map_polygons for x, y in poly])
+    extreme_y = extreme_getter([y for poly in map_polygons for x, y in poly])
+    return (int(extreme_x), int(extreme_y))
+
+
+def offset(polygon, offset_x, offset_y):
+    return [(x + offset_x, y + offset_y) for x, y in polygon]
+
+
+def reset_origin(map_polygons):
+    min_x, min_y = get_extreme_pos(map_polygons, min)
+    return [offset(poly, -min_x, -min_y) for poly in map_polygons]

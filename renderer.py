@@ -1,7 +1,7 @@
 import sys
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
-from shape_parser import parse_map, parse_path
+from shape_parser import parse_map, parse_path, get_extreme_pos, reset_origin
 
 FRAME_SIZE = (10000, 10000)
 
@@ -13,18 +13,20 @@ class Renderer(object):
         self.frame = None
         self.figure = plt.figure()
 
-        # Draw map on frame
+        # Parse map
         with open(map_file, "r") as f:
             map_data = f.read()
         self.map_polygons = parse_map(map_data)
-
-        self.draw_map(self.map_polygons)
+        self.map_polygons = reset_origin(self.map_polygons)
+        self.frame_size = get_extreme_pos(self.map_polygons, max)
 
         # Render map
+        self.draw_map(self.map_polygons)
         self.image = plt.imshow(self.frame)
 
     def draw_path(self, path):
-        if len(path) < 2: return
+        if len(path) < 2:
+            return
         draw = ImageDraw.Draw(self.frame)
         draw.line(path, fill=0, outline=(255, 0, 0))
 
@@ -62,4 +64,3 @@ if __name__ == "__main__":
         path_data = data[1]
         path = parse_path(path_data)
         renderer.render(path)
-
